@@ -50,8 +50,8 @@ while True:
 f.close()
 '''
 
-def fopen(filename, mode):
-    f=open(filename, mode)
+def fopen_r(filename):
+    f=open(filename, 'r')
     _list=[]
     while True:
         line=f.readline()
@@ -61,8 +61,8 @@ def fopen(filename, mode):
     f.close()
     return _list
 
-blacklist=fopen("blacklist.txt", 'r')
-block_user=fopen("block_user", 'r')
+blacklist=fopen_r("blacklist.txt")
+block_user=fopen_r("block_user.txt")
 
 
 individual = 0
