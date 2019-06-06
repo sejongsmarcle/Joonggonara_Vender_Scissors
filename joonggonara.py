@@ -20,14 +20,25 @@ driver.implicitly_wait(1)
 title_tmp = ' '
 author_tmp = ' '
 #info = (title_tmp, author_tmp)
-
+'''
 blacklist = ['☆', '★', '◀', '▶', '■', '□', '●', '○', '◇', '◈', '♪', '♨', '♣', '♧', '⊙', '#', '@', '<', '>', \
              '삽니다', '매입', '파손', '고장', '최고가', '최상', \
              '최저가', '할인', '대박', '세일', '한정', '특', '특급', '특가', '최대한', '저렴하게', 'S급', 's급', '싸게', \
              '전국', '택배', '가개통', '선택', '약정', '전문', '강변', '출장', '급처', '사은품', '최고회원', \
              '부산', '수원', '대전', '대구', '전주', '청주']
 
-#block_user = ['모바일', '폰', 'phone', 'Phone', '남포폰깨비', '햄툐리a', 'diddud1234', '후애마이', 'foreversoo1', '럭키쵸이', '안전거래직', '난야똑또기', '절대신용7', '원하다폰', 'kg5161', '카나리비오', '중고폰', 'baksaphone', 'chsekfr77', '깔끔하게쿨하게', '아나바다폰', 'rhden2626', '45351', 'rnjstnsgud1487', '몽몽이58', 'Hey', 'jhpa', '르샤트', '강아징아아', '꼬마', 'wjdnf33', 'hiplaza1989', '6106모바일2', 'rnjstnsgud1487', 'superlueh4', 'Smile Phone', '깜장발이', '금빛돼지']
+block_user = ['모바일', '폰', 'phone', 'Phone', '남포폰깨비', '햄툐리a', 'diddud1234', '후애마이', 'foreversoo1', '럭키쵸이', '안전거래직', '난야똑또기', '절대신용7', '원하다폰', 'kg5161', '카나리비오', '중고폰', 'baksaphone', 'chsekfr77', '깔끔하게쿨하게', '아나바다폰', 'rhden2626', '45351', 'rnjstnsgud1487', '몽몽이58', 'Hey', 'jhpa', '르샤트', '강아징아아', '꼬마', 'wjdnf33', 'hiplaza1989', '6106모바일2', 'rnjstnsgud1487', 'superlueh4', 'Smile Phone', '깜장발이', '금빛돼지']
+'''
+
+'''
+f=open("blacklist.txt", 'r')
+blacklist=[]
+while True:
+    line=f.readline()
+    if not line:
+        break
+    blacklist.append(line[:-1])
+f.close()
 
 f=open("block_user.txt", 'r')
 block_user=[]
@@ -37,6 +48,22 @@ while True:
         break
     block_user.append(line[:-1])
 f.close()
+'''
+
+def fopen(filename, mode):
+    f=open(filename, mode)
+    _list=[]
+    while True:
+        line=f.readline()
+        if not line:
+            break
+        _list.append(line[:-1])
+    f.close()
+    return _list
+
+blacklist=fopen("blacklist.txt", 'r')
+block_user=fopen("block_user", 'r')
+
 
 individual = 0
 vender = 0
@@ -83,7 +110,10 @@ while True:
         except TypeError:
             print("TypeError: 'in <string>' requires string as left operand, not list")
             print('word:',word,'\ntitle:',title)
-            continue
+            bot.sendMessage(chat_id=chat_id, \
+                text="TypeError: 'in <string>' requires string as left operand, not list\n\n"+\
+                "word: "+word+"\ntitle: "+title)
+            break
 
         #check vender by author
         for user in block_user:
@@ -116,7 +146,7 @@ while True:
         if text_tmp != text:
             text_tmp = text
             texts = text.split(' ')
-
+            
             if 'help' in text:
                 bot.sendMessage(chat_id=chat_id, text='block [id]\nadd [blacklist]\nex)block gogotaxi\nadd <')
 
