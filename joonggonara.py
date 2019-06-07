@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import time
 from winsound import Beep
 import telegram
+import os
 
 my_token = '837339362:AAESYsiM7S5qRu4SBGYK-OLhrEgRtPWgDcA'
 bot = telegram.Bot(my_token)
@@ -22,10 +23,10 @@ author_tmp = ' '
 #info = (title_tmp, author_tmp)
 '''
 blacklist = ['☆', '★', '◀', '▶', '■', '□', '●', '○', '◇', '◈', '♪', '♨', '♣', '♧', '⊙', '#', '@', '<', '>', \
-             '삽니다', '매입', '파손', '고장', '최고가', '최상', \
-             '최저가', '할인', '대박', '세일', '한정', '특', '특급', '특가', '최대한', '저렴하게', 'S급', 's급', '싸게', \
-             '전국', '택배', '가개통', '선택', '약정', '전문', '강변', '출장', '급처', '사은품', '최고회원', \
-             '부산', '수원', '대전', '대구', '전주', '청주']
+            '삽니다', '매입', '파손', '고장', '최고가', '최상', \
+            '최저가', '할인', '대박', '세일', '한정', '특', '특급', '특가', '최대한', '저렴하게', 'S급', 's급', '싸게', \
+            '전국', '택배', '가개통', '선택', '약정', '전문', '강변', '출장', '급처', '사은품', '최고회원', \
+            '부산', '수원', '대전', '대구', '전주', '청주']
 
 block_user = ['모바일', '폰', 'phone', 'Phone', '남포폰깨비', '햄툐리a', 'diddud1234', '후애마이', 'foreversoo1', '럭키쵸이', '안전거래직', '난야똑또기', '절대신용7', '원하다폰', 'kg5161', '카나리비오', '중고폰', 'baksaphone', 'chsekfr77', '깔끔하게쿨하게', '아나바다폰', 'rhden2626', '45351', 'rnjstnsgud1487', '몽몽이58', 'Hey', 'jhpa', '르샤트', '강아징아아', '꼬마', 'wjdnf33', 'hiplaza1989', '6106모바일2', 'rnjstnsgud1487', 'superlueh4', 'Smile Phone', '깜장발이', '금빛돼지']
 '''
@@ -64,9 +65,13 @@ def fopen_r(filename):
 blacklist=fopen_r("blacklist.txt")
 block_user=fopen_r("block_user.txt")
 
+count=fopen_r("count.txt")
 
-individual = 0
-vender = 0
+individual = int(count[0])
+vender = int(count[1])
+
+
+
 keywords = ['V30', 'v30', 'G7', 'g7']
 
 sign=['↑', '↗', '→', '↘', '↓', '↙', '←', '↖']
@@ -90,9 +95,9 @@ while True:
             '#main-area > div:nth-child(5) > table > tbody > tr:nth-child(1) > td.td_article > div.board-list > div > a').pop().text.strip()
         author = soup.select(
             '#main-area > div:nth-child(5) > table > tbody > tr:nth-child(1) > td.td_name > div > table > tbody > tr > td > a').pop().text.strip()
-    except IndexError:
-        print('IndexError: pop from empty list')
-        bot.sendMessage(chat_id=chat_id, text='IndexError: pop from empty list')
+    except Exception as e:
+        print(e)
+        bot.sendMessage(chat_id=chat_id, text=str(e))
         continue
 
     if title_tmp != title:
@@ -101,19 +106,18 @@ while True:
         vender_flag = False
 
         # check vender by title
-        try:
-            for word in blacklist:
-                if word in title:
+        for word in blacklist:
+            try:
+                if word[0] in title:
                     vender+=1
                     vender_flag = True
                     break
-        except TypeError:
-            print("TypeError: 'in <string>' requires string as left operand, not list")
-            print('word:',word,'\ntitle:',title)
-            bot.sendMessage(chat_id=chat_id, \
-                text="TypeError: 'in <string>' requires string as left operand, not list\n\n"+\
-                "word: "+word+"\ntitle: "+title)
-            break
+            except Exception as e:
+                print(e)
+                print('word:',word,'\ntitle:',title)
+                bot.sendMessage(chat_id=chat_id, \
+                    text=str(e)+"\n\n"+"word: "+word+"\ntitle: "+title)
+                break
 
         #check vender by author
         for user in block_user:
@@ -156,13 +160,16 @@ while True:
                 f.close()
                 block_user.append(texts[1])
                 bot.sendMessage(chat_id=chat_id, text='blocked user ' + texts[1])
-                print('blocked user ' + texts[1])
+                print('blocked user ' + texts[1]+'\n')
             elif texts[0] == 'add':
+                f=open("blacklist.txt", 'a')
+                f.write(texts[1]+"\n")
+                f.close()
                 blacklist.append([texts[1]])
                 bot.sendMessage(chat_id=chat_id, text='add blacklist ' + texts[1])
-                print('add blacklist' + texts[1])
+                print('add blacklist ' + texts[1]+'\n')
             elif texts[0] == 'show':
-                bot.sendMessage(chat_id=chat_id, text=block_user)
+                bot.sendMessage(chat_id=chat_id, text=str(individual)+str(vender))
                 print('show blocked user list')
             else:
                 bot.sendMessage(chat_id=chat_id, text='I can\'t understand.\nWhat did you say?')
@@ -177,5 +184,21 @@ while True:
     time.sleep(1)
     t+=1
 
+count=open("count.txt", 'w')
+count.write(str(individual)+'\n')
+count.write(str(vender)+'\n')
+count.close()
 
 driver.close()
+'''
+except Exception as e:
+    print(e)
+    bot.sendMessage(chat_id=chat_id, text=e)
+
+    count=open("count.txt", 'w')
+    count.write(str(individual)+'\n')
+    count.write(str(vender)+'\n')
+    count.close()
+
+    os.system("python joonggonara.py")
+'''
