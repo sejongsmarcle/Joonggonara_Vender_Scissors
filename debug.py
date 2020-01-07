@@ -11,26 +11,11 @@ chat_id = bot.getUpdates()[-1].message.chat.id
 text_tmp = bot.getUpdates()[-1].message.text
 
 options = webdriver.ChromeOptions()
-options.add_argument('headless')
+#options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument('disable-gpu')
 
-'''
-log-level: 
-Sets the minimum log level.
-Valid values are from 0 to 3: 
-
-    INFO = 0, 
-    WARNING = 1, 
-    LOG_ERROR = 2, 
-    LOG_FATAL = 3.
-
-default is 0.
-'''
-options.add_argument('log-level=1')
-
-
-driver = webdriver.Chrome(executable_path='D:/chromedriver.exe', options=options)
+driver = webdriver.Chrome(executable_path='D:/chromedriver.exe', chrome_options=options)
 driver.implicitly_wait(1)
 
 title_tmp = ' '
@@ -93,6 +78,7 @@ sign=['↑', '↗', '→', '↘', '↓', '↙', '←', '↖']
 
 t=0
 while True:
+    print('driver.get')
     driver.get('https://cafe.naver.com/ArticleList.nhn?search.clubid=10050146&search.menuid=424&search.boardtype=L')
     driver.switch_to.frame('cafe_main')
 
@@ -200,11 +186,11 @@ while True:
                 bot.sendMessage(chat_id=chat_id, text='I can\'t understand.\nWhat did you say?')
             print()
 
-    now=time.gmtime(time.time())
-    print('{:d}시 {:d}분 {:d}초 {:s}\t{:d} : {:d}\t개인: {:.2f}%\t업자: {:.2f}%'\
-        .format(now.tm_hour+9, now.tm_min, now.tm_sec, sign[t%8], \
-            individual, vender, \
-            individual/(individual+vender)*100, vender/(individual+vender)*100), end='\r')
+#    now=time.gmtime(time.time())
+#    print('{:d}시 {:d}분 {:d}초 {:s}\t{:d} : {:d}\t개인: {:.2f}%\t업자: {:.2f}%'\
+#        .format(now.tm_hour+9, now.tm_min, now.tm_sec, sign[t%8], \
+#            individual, vender, \
+#            individual/(individual+vender)*100, vender/(individual+vender)*100), end='\r')
 
     time.sleep(1)
     t+=1
