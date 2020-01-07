@@ -88,13 +88,18 @@ while True:
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
 
+    # pop from empty list 오류 발생 시
+
+    # 공지사항 리스트 수 변경으로 div:nth-child() 안의 숫자가 바뀔 경우 
+    # 게시글 selector 다시 추출해서 재설정하는게 빠르고 편함
+
     try:
         postnum=soup.select(
-            '#main-area > div:nth-child(5) > table > tbody > tr:nth-child(1) > td.td_article > div.board-number > div').pop().text.strip()
+            '#main-area > div:nth-child(7) > table > tbody > tr:nth-child(1) > td.td_article > div.board-number > div').pop().text.strip()
         title = soup.select(
-            '#main-area > div:nth-child(5) > table > tbody > tr:nth-child(1) > td.td_article > div.board-list > div > a').pop().text.strip()
+            '#main-area > div:nth-child(7) > table > tbody > tr:nth-child(1) > td.td_article > div.board-list > div > a').pop().text.strip()
         author = soup.select(
-            '#main-area > div:nth-child(5) > table > tbody > tr:nth-child(1) > td.td_name > div > table > tbody > tr > td > a').pop().text.strip()
+            '#main-area > div:nth-child(7) > table > tbody > tr:nth-child(1) > td.td_name > div > table > tbody > tr > td > a').pop().text.strip()
     except Exception as e:
         print(e)
         bot.sendMessage(chat_id=chat_id, text=str(e))
@@ -128,8 +133,6 @@ while True:
 
         if not vender_flag:
             individual += 1        
-
-        if not vender_flag:
             for keyword in keywords:
                 if (keyword in title):
                     print('\n'+title)
@@ -138,6 +141,12 @@ while True:
                     
                     link='https://cafe.naver.com/joonggonara/'+postnum
                     bot.sendMessage(chat_id=chat_id, text=title+'\n'+author+'\n'+link)
+            
+            if individual%10 == 0 or vender % 100 == 0:
+                count=open("count.txt", 'w')
+                count.write(str(individual)+'\n')
+                count.write(str(vender)+'\n')
+                count.close()
 
     if t%24==0:
         t=0
@@ -153,6 +162,7 @@ while True:
             
             if 'help' in text:
                 bot.sendMessage(chat_id=chat_id, text='block [id]\nadd [blacklist]\nex)block gogotaxi\nadd <')
+                break
 
             if texts[0] == 'block':
                 f=open("block_user.txt", 'a')
