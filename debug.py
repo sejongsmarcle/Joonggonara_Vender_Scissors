@@ -11,9 +11,9 @@ import os
 
 # select other category
 
-# check multple board
-
 # postnum, title, author -> json? dict
+
+# 분당 게시글 빈도수 그래프 분석을 통한 유동적인 데이터 크롤링
 
 '''
 log-level: 
@@ -110,6 +110,12 @@ postnum_chk  = []
 title_chk    = []
 author_chk   = []
 
+article = {
+    'num'   : ' ',
+    'title' : ' ',
+    'name'  : ' ' 
+}
+
 print("Starting...")
 t=0
 while True:
@@ -143,7 +149,7 @@ while True:
     # 그냥 전부 연산해도되는거 아닌가
 
     try:
-        for i in range(1, 5+1):
+        for i in range(1, 10+1):
             postnum_before.append(
                 soup.select(
                 '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_article > div.board-number > div')
