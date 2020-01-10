@@ -5,6 +5,16 @@ from winsound import Beep
 import telegram
 import os
 
+# TODO
+
+# python auto restart
+
+# select other category
+
+# check multple board
+
+# postnum, title, author -> json? dict
+
 '''
 log-level: 
 Sets the minimum log level.
@@ -45,7 +55,7 @@ text_tmp    = bot.getUpdates()[-1].message.text
 
 #selenium.webdriver
 options = webdriver.ChromeOptions()
-options.add_argument('headless')
+#options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument('disable-gpu')
 options.add_argument('log-level=1')
@@ -75,9 +85,6 @@ vender      = int(count[1])
 keywords    = ['V30', 'v30', 'G7', 'g7']
 sign        = ['↑', '↗', '→', '↘', '↓', '↙', '←', '↖']
 
-title_tmp   = ' '
-author_tmp  = ' '
-
 #get article index
 driver.get('https://cafe.naver.com/ArticleList.nhn?search.clubid=10050146&search.menuid=424&search.boardtype=L')
 driver.switch_to.frame('cafe_main')
@@ -94,44 +101,115 @@ while True:
     except:
         print(str(articleIndex))
         articleIndex+=1
-        time.sleep(1)
+        #time.sleep(1)
         continue
 
 # main
 
+postnum_chk  = []
+title_chk    = []
+author_chk   = []
+
 print("Starting...")
 t=0
 while True:
-    driver.get('https://cafe.naver.com/ArticleList.nhn?search.clubid=10050146&search.menuid=424&search.boardtype=L')
+    #driver.get('https://cafe.naver.com/ArticleList.nhn?search.clubid=10050146&search.menuid=424&search.boardtype=L')
+    driver.refresh()
     driver.switch_to.frame('cafe_main')
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
 
-    selector_front   = '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > '
+    #main-area > div:nth-child(7) > table > tbody > tr:nth-child(1) > td.td_article > div.board-list > div > a
+    #main-area > div:nth-child(7) > table > tbody > tr:nth-child(2) > td.td_article > div.board-list > div > a
+    #main-area > div:nth-child(7) > table > tbody > tr:nth-child(3) > td.td_article > div.board-list > div > a
+
+    #네이밍 방식 변경
+    #before
+    #chk before after
+
+    #after
+    #과거 현재 미래
+    #before now after
+
+    postnum_before  = []
+    title_before    = []
+    author_before   = []
+
+    postnum_after  = []
+    title_after    = []
+    author_after   = []
+
+    # 굳이 중복 검사할 필요 없이
+    # 그냥 전부 연산해도되는거 아닌가
+
     try:
-        postnum=soup.select(
-            '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > td.td_article > div.board-number > div').pop().text.strip()
-        title = soup.select(
-            '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > td.td_article > div.board-list > div > a').pop().text.strip()
-        author = soup.select(
-            '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > td.td_name > div > table > tbody > tr > td > a').pop().text.strip()
+        for i in range(1, 5+1):
+            postnum_before.append(
+                soup.select(
+                '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_article > div.board-number > div')
+                .pop().text.strip()
+            )
+            title_before.append(
+                soup.select(
+                '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_article > div.board-list > div > a')
+                .pop().text.strip()
+            )
+            author_before.append(
+                soup.select(
+                '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_name > div > table > tbody > tr > td > a')
+                .pop().text.strip()
+            )
     except Exception as e:
         print(e)
-        bot.sendMessage(chat_id=chat_id, text=str(e))
+        #bot.sendMessage(chat_id=chat_id, text=str(e))
         time.sleep(1)
-
         continue
 
-    print(title)
-    if title_tmp != title:
-        title_tmp = title
+    # initialize
+    if t==0:
+        postnum_chk = postnum_before
+        title_chk = title_before
+        author_chk = author_before
 
+        postnum_after = postnum_before
+        title_after = title_before
+        author_after = author_before
+
+    for postnum, title, author in zip(postnum_before, title_before, author_before):
+        if not (postnum in postnum_chk):
+
+            #append to after list
+            postnum_after.append(postnum)
+            title_after.append(title)
+            author_after.append(author)
+
+
+
+            '''
+            # pop oldest element(1, 2, 3 -> 1, 2)
+            postnum_chk.pop()
+            title_chk.pop()
+            author_chk.pop()
+
+            #append(push) updated element(1, 2 -> 1_new, 1, 2)
+            postnum_chk.insert(0, postnum)
+            title_chk.insert(0, title)
+            author_chk.insert(0, author)
+            '''
+
+    # 그냥 체크리스트 자체를 갱신해버리면?
+    postnum_chk = postnum_before
+    title_chk = title_before
+    author_chk = author_before
+    
+
+    for postnum, title, author in zip(postnum_after, title_after, author_after):
         vender_flag = False
 
         # check vender by title
         for word in blacklist:
             try:
-                if word[0] in title:
+                if word in title:
                     vender+=1
                     vender_flag = True
                     break
@@ -160,6 +238,7 @@ while True:
                     
                     link='https://cafe.naver.com/joonggonara/'+postnum
                     bot.sendMessage(chat_id=chat_id, text=title+'\n'+author+'\n'+link)
+                    author_tmp = author
             
             if individual%10 == 0 or vender % 100 == 0:
                 count=open("count.txt", 'w')
@@ -168,7 +247,7 @@ while True:
                 count.close()
 
     if t%24==0:
-        t=0
+        #t=0
         #print("don't worry. I'm working...")
 
         # telegram receive part
@@ -184,6 +263,12 @@ while True:
                 break
 
             if texts[0] == 'block':
+
+#                if(len(texts)==1):
+#                    texts[1]=author_tmp
+
+#               texts[1] 이 아니라 새로 하나 만들어서 넘겨야할듯
+
                 f=open("block_user.txt", 'a')
                 f.write(texts[1]+"\n")
                 f.close()

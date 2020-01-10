@@ -59,32 +59,74 @@ while True:
         print("Got it!")
         break
     except:
-        print(str(articleIndex), end='\r')
         articleIndex+=1
         continue
 
+# main
+
+postnum_before  = []
+title_before    = []
+author_before   = []
+
 t=0
 while True:
-    driver.get('https://cafe.naver.com/ArticleList.nhn?search.clubid=10050146&search.menuid=424&search.boardtype=L')
+
+    postnum_current = []
+    title_current   = []
+    author_current  = []
+
+    postnum_after  = []
+    title_after    = []
+    author_after   = []    
+
+    driver.refresh()
     driver.switch_to.frame('cafe_main')
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
 
     try:
-        postnum=soup.select(
-            '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > td.td_article > div.board-number > div').pop().text.strip()
-        title = soup.select(
-            '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > td.td_article > div.board-list > div > a').pop().text.strip()
-        author = soup.select(
-            '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child(1) > td.td_name > div > table > tbody > tr > td > a').pop().text.strip()
+        for i in range(1, 10+1):
+            postnum_current.append(
+                soup.select(
+                '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_article > div.board-number > div')
+                .pop().text.strip())
+            title_current.append(
+                soup.select(
+                '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_article > div.board-list > div > a')
+                .pop().text.strip())
+            author_current.append(
+                soup.select(
+                '#main-area > div:nth-child('+str(articleIndex)+') > table > tbody > tr:nth-child('+str(i)+') > td.td_name > div > table > tbody > tr > td > a')
+                .pop().text.strip())
     except Exception as e:
         print(e)
         bot.sendMessage(chat_id=chat_id, text=str(e))
         continue
 
-    if title_tmp != title:
-        title_tmp = title
+    # initialize
+    if t==0:
+        postnum_before = postnum_current
+        title_before = title_current
+        author_before = author_current
 
+        postnum_after = postnum_current
+        title_after = title_current
+        author_after = author_current
+
+    for postnum, title, author in zip(postnum_current, title_current, author_current):
+        if not (postnum in postnum_before):
+
+            #append to after list
+            postnum_after.append(postnum)
+            title_after.append(title)
+            author_after.append(author)
+
+    #update
+    postnum_before = postnum_current
+    title_before = title_current
+    author_before = author_current
+
+    for postnum, title, author in zip(postnum_after, title_after, author_after):
         vender_flag = False
 
         # check vender by title
@@ -127,7 +169,6 @@ while True:
 
     if t%24==0:
         t=0
-        #print("don't worry. I'm working...")
 
         # telegram receive part
         text = bot.getUpdates()[-1].message.text
@@ -136,7 +177,7 @@ while True:
         if text_tmp != text:
             text_tmp = text
             texts = text.split(' ')
-            
+
             if 'help' in text:
                 bot.sendMessage(chat_id=chat_id, text='block [id]\nadd [blacklist]\nex)block gogotaxi\nadd <')
                 break
