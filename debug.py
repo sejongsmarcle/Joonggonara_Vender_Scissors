@@ -1,9 +1,12 @@
-from selenium import webdriver
-from bs4 import BeautifulSoup
+import os
+import sys
 import time
 from winsound import Beep
+
+from selenium import webdriver
+from bs4 import BeautifulSoup
 import telegram
-import os
+
 
 # TODO
 
@@ -46,6 +49,11 @@ default is 0.
 
 
 '''
+
+# args (for auto restart)
+executable = sys.executable
+args = sys.argv[:]
+args.insert(0, sys.executable)
 
 #telegram
 my_token = '837339362:AAESYsiM7S5qRu4SBGYK-OLhrEgRtPWgDcA'
@@ -310,6 +318,8 @@ count.write(str(vender)+'\n')
 count.close()
 
 driver.close()
+
+os.execvp(executable, args)
 '''
 except Exception as e:
     print(e)
